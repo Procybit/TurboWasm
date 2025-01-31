@@ -1,0 +1,7 @@
+wasm/*.wasm
+
+cpp/*.cpp
+cpp/*.h
+!cpp/example.cpp
+
+.vscode
