@@ -12,11 +12,15 @@ If you only need the extension, download [TurboWasm.js](TurboWasm.js)
 
 ### Toolchain (Emscripten + batch scripts + examples)
 
+For now, only Windows installations supported.
+
 ```
 git clone --recurse-submodules https://github.com/Procybit/turbowasm.git
-```
 
-After that, start `install.bat` to automaticlly install emsdk.
+cd turbowasm
+
+install
+```
 
 ## Usage
 
