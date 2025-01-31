@@ -8,17 +8,24 @@ An extension and simple C++ toolchain for running WebAssembly in TurboWarp using
 
 ### Only extension
 
-If you only need the extension, download [TurboWasm.js](TurboWasm.js)
+If you only need the extension, download [TurboWasm.js](https://raw.githubusercontent.com/Procybit/TurboWasm/refs/heads/master/TurboWasm.js)
 
 ### Toolchain (Emscripten + batch scripts + examples)
 
 For now, only Windows installations supported.
 
+Clone repo:
+
 ```
 git clone --recurse-submodules https://github.com/Procybit/turbowasm.git
-
+```
+```
 cd turbowasm
+```
 
+Run install.bat to automaticlly dowwnload, install and activate emsdk:
+
+```
 install
 ```
 
