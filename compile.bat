@@ -13,7 +13,7 @@ for %%f in (cpp\*.cpp) do (
     set "NAME=%%~nf"
 
     REM Compile the .cpp file to .wasm using em++
-    call em++ "%%f" -o "wasm\!NAME!.wasm" -s STANDALONE_WASM=1 --no-entry -O3
+    call em++ "%%f" -o "wasm\!NAME!.wasm" -sSTANDALONE_WASM=1 -sINITIAL_HEAP=1gb -sABORTING_MALLOC=0 --no-entry -O3
     
     REM Check if the compilation was successful
     if errorlevel 1 (

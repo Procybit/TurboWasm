@@ -2,3 +2,4 @@
 - Import binding
 - Float/double arrays
 - Better call blocks
+- Allow memory growth
