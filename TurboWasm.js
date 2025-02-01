@@ -267,7 +267,7 @@ class TurboWasm {
         {
           opcode: 'place',
           blockType: Scratch.BlockType.COMMAND,
-          text: 'place array [list] at [ptr] in [name] sized [size] bytes',
+          text: 'place array [list] at [ptr] in [name] type [size]',
           arguments: {
             list: {
               type: Scratch.ArgumentType.STRING,
@@ -280,7 +280,7 @@ class TurboWasm {
               type: Scratch.ArgumentType.STRING
             },
             size: {
-              type: Scratch.ArgumentType.NUMBER,
+              type: Scratch.ArgumentType.STRING,
               menu: "sizes"
             }
           }
@@ -288,7 +288,7 @@ class TurboWasm {
         {
           opcode: 'take',
           blockType: Scratch.BlockType.COMMAND,
-          text: 'take array at [ptr] in [name] sized [size] bytes to [list] length [length]',
+          text: 'take array at [ptr] in [name] type [size] to [list] length [length]',
           arguments: {
             ptr: {
               type: Scratch.ArgumentType.NUMBER
@@ -297,7 +297,7 @@ class TurboWasm {
               type: Scratch.ArgumentType.STRING
             },
             size: {
-              type: Scratch.ArgumentType.NUMBER,
+              type: Scratch.ArgumentType.STRING,
               menu: "sizes"
             },
             list: {
@@ -313,7 +313,9 @@ class TurboWasm {
       menus: {
         sizes: {
           acceptReporters: true,
-          items: ["1", "2", "4", "8"]
+          items: ["i8", "i16", "i32", "i64",
+                  "u8", "u16", "u32", "u64",
+                  "f32", "f64"]
         },
         lists: {
           acceptReporters: true,
@@ -359,59 +361,116 @@ class TurboWasm {
   place({ list, ptr, name, size }, util) {
     const array = this.getVarObjectFromName(list, util, "list").value
     const memory = this.modules[name].memory;
-  
-    const buffer = new Uint8Array(memory.buffer);
+    const buffer = new DataView(memory.buffer);
 
+    var set;
+    var s;
+
+    switch (size) {
+      case "i8":
+        set = buffer.setInt8.bind(buffer);
+        s = 1;
+        break;
+      case "i16":
+        set = buffer.setInt16.bind(buffer);
+        s = 2;
+        break;
+      case "i32":
+        set = buffer.setInt32.bind(buffer);
+        s = 4;
+        break;
+      case "i64":
+        set = buffer.setBigInt64.bind(buffer);
+        s = 8;
+        break;
+      case "u8":
+        set = buffer.setUint8.bind(buffer);
+        s = 1;
+        break;
+      case "u16":
+        set = buffer.setUint16.bind(buffer);
+        s = 2;
+        break;
+      case "u32":
+        set = buffer.setUint32.bind(buffer);
+        s = 4;
+        break;
+      case "u64":
+        set = buffer.setBigUint64.bind(buffer);
+        s = 8;
+        break;
+      case "f32":
+        set = buffer.setFloat32.bind(buffer);
+        s = 4;
+        break;
+      case "f64":
+        set = buffer.setFloat64.bind(buffer);
+        s = 8;
+        break;
+    }
+    
     for (let i = 0; i < array.length; i++) {
         const value = array[i];
-
-        switch (size) {
-            case 1:
-                buffer[ptr + i] = value;
-                break;
-            case 2:
-                new DataView(buffer.buffer).setUint16(ptr + i * 2, value, true);
-                break;
-            case 4:
-                new DataView(buffer.buffer).setUint32(ptr + i * 4, value, true);
-                break;
-            case 8:
-                new DataView(buffer.buffer).setBigUint64(ptr + i * 8, BigInt(value), true);
-                break;
-            default:
-                throw new Error(`Unsupported size: ${size}`);
-        }
+        set(ptr + i * s, value, true)
     }
   }
   take({ ptr, name, size, list, length }, util) {
     const array = this.getVarObjectFromName(list, util, "list").value
     const memory = this.modules[name].memory;
+    const buffer = new DataView(memory.buffer);
 
-    const buffer = new Uint8Array(memory.buffer);
+    var get;
+    var s;
+
+    switch (size) {
+      case "i8":
+        get = buffer.getInt8.bind(buffer);
+        s = 1;
+        break;
+      case "i16":
+        get = buffer.getInt16.bind(buffer);
+        s = 2;
+        break;
+      case "i32":
+        get = buffer.getInt32.bind(buffer);
+        s = 4;
+        break;
+      case "i64":
+        get = buffer.getBigInt64.bind(buffer);
+        s = 8;
+        break;
+      case "u8":
+        get = buffer.getUint8.bind(buffer);
+        s = 1;
+        break;
+      case "u16":
+        get = buffer.getUint16.bind(buffer);
+        s = 2;
+        break;
+      case "u32":
+        get = buffer.getUint32.bind(buffer);
+        s = 4;
+        break;
+      case "u64":
+        get = buffer.getBigUint64.bind(buffer);
+        s = 8;
+        break;
+      case "f32":
+        get = buffer.getFloat32.bind(buffer);
+        s = 4;
+        break;
+      case "f64":
+        get = buffer.getFloat64.bind(buffer);
+        s = 8;
+        break;
+    }
 
     if (array.length < length) {
         array.length = length;
     }
 
     for (let i = 0; i < length; i++) {
-        let value;
-
-        switch (size) {
-            case 1:
-                value = buffer[ptr + i];
-                break;
-            case 2:
-                value = new DataView(buffer.buffer).getUint16(ptr + i * 2, true);
-                break;
-            case 4:
-                value = new DataView(buffer.buffer).getUint32(ptr + i * 4, true);
-                break;
-            case 8:
-                value = Number(new DataView(buffer.buffer).getBigUint64(ptr + i * 8, true));
-                break;
-            default:
-                throw new Error(`Unsupported size: ${size}`);
-        }
+        const value = get(ptr + i * s, true);
         array[i] = value;
     }
   }
