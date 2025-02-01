@@ -361,117 +361,99 @@ class TurboWasm {
   place({ list, ptr, name, size }, util) {
     const array = this.getVarObjectFromName(list, util, "list").value
     const memory = this.modules[name].memory;
-    const buffer = new DataView(memory.buffer);
+    const buffer = memory.buffer;
 
     var set;
     var s;
 
     switch (size) {
       case "i8":
-        set = buffer.setInt8.bind(buffer);
-        s = 1;
+        new Int8Array(buffer, ptr, array.length).set(array);
         break;
       case "i16":
-        set = buffer.setInt16.bind(buffer);
-        s = 2;
+        new Int16Array(buffer, ptr, array.length).set(array);
         break;
       case "i32":
-        set = buffer.setInt32.bind(buffer);
-        s = 4;
+        new Int32Array(buffer, ptr, array.length).set(array);
         break;
       case "i64":
-        set = buffer.setBigInt64.bind(buffer);
-        s = 8;
+        const bigIntArray = new BigInt64Array(buffer, ptr, array.length);
+        for (let i = 0; i < array.length; i++) {
+            bigIntArray[i] = array[i];
+        }
         break;
       case "u8":
-        set = buffer.setUint8.bind(buffer);
-        s = 1;
+        new Uint8Array(buffer, ptr, array.length).set(array);
         break;
       case "u16":
-        set = buffer.setUint16.bind(buffer);
-        s = 2;
+        new Uint16Array(buffer, ptr, array.length).set(array);
         break;
       case "u32":
-        set = buffer.setUint32.bind(buffer);
-        s = 4;
+        new Uint32Array(buffer, ptr, array.length).set(array);
         break;
       case "u64":
-        set = buffer.setBigUint64.bind(buffer);
-        s = 8;
+        const bigUintArray = new BigUint64Array(buffer, ptr, array.length);
+        for (let i = 0; i < array.length; i++) {
+            bigUintArray[i] = array[i];
+        }
         break;
       case "f32":
-        set = buffer.setFloat32.bind(buffer);
-        s = 4;
+        new Float32Array(buffer, ptr, array.length).set(array);
         break;
       case "f64":
-        set = buffer.setFloat64.bind(buffer);
-        s = 8;
+        new Float64Array(buffer, ptr, array.length).set(array);
         break;
-    }
-    
-    for (let i = 0; i < array.length; i++) {
-        const value = array[i];
-        set(ptr + i * s, value, true)
+      default:
+        throw new Error(`Unsupported size: ${size}`);
     }
   }
   take({ ptr, name, size, list, length }, util) {
     const array = this.getVarObjectFromName(list, util, "list").value
     const memory = this.modules[name].memory;
-    const buffer = new DataView(memory.buffer);
-
-    var get;
-    var s;
-
-    switch (size) {
-      case "i8":
-        get = buffer.getInt8.bind(buffer);
-        s = 1;
-        break;
-      case "i16":
-        get = buffer.getInt16.bind(buffer);
-        s = 2;
-        break;
-      case "i32":
-        get = buffer.getInt32.bind(buffer);
-        s = 4;
-        break;
-      case "i64":
-        get = buffer.getBigInt64.bind(buffer);
-        s = 8;
-        break;
-      case "u8":
-        get = buffer.getUint8.bind(buffer);
-        s = 1;
-        break;
-      case "u16":
-        get = buffer.getUint16.bind(buffer);
-        s = 2;
-        break;
-      case "u32":
-        get = buffer.getUint32.bind(buffer);
-        s = 4;
-        break;
-      case "u64":
-        get = buffer.getBigUint64.bind(buffer);
-        s = 8;
-        break;
-      case "f32":
-        get = buffer.getFloat32.bind(buffer);
-        s = 4;
-        break;
-      case "f64":
-        get = buffer.getFloat64.bind(buffer);
-        s = 8;
-        break;
-    }
+    const buffer = memory.buffer;
 
     if (array.length < length) {
-        array.length = length;
+      array.length = length;
+    }
+
+    var new_array;
+    switch (size) {
+      case "i8":
+        new_array = new Int8Array(buffer, ptr, length);
+        break;
+      case "i16":
+        new_array = new Int16Array(buffer, ptr, length);
+        break;
+      case "i32":
+        new_array = new Int32Array(buffer, ptr, length);
+        break;
+      case "i64":
+        new_array = new BigInt64Array(buffer, ptr, length);
+        break;
+      case "u8":
+        new_array = new Uint8Array(buffer, ptr, length);
+        break;
+      case "u16":
+        new_array = new Uint16Array(buffer, ptr, length);
+        break;
+      case "u32":
+        new_array = new Uint32Array(buffer, ptr, length);
+        break;
+      case "u64":
+        new_array = new BigUint64Array(buffer, ptr, length);
+        break;
+      case "f32":
+        new_array = new Float32Array(buffer, ptr, length);
+        break;
+      case "f64":
+        new_array = new Float64Array(buffer, ptr, length);
+        break;
+      default:
+        throw new Error(`Unsupported size: ${size}`);
     }
 
     for (let i = 0; i < length; i++) {
-        const value = get(ptr + i * s, true);
-        array[i] = value;
+        array[i] = new_array[i];
     }
   }
   // Lily's code from ListTools.js
