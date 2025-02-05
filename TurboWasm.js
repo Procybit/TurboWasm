@@ -18,6 +18,10 @@ class TurboWasm {
       blockIconURI: this.icon,
       blocks: [
         {
+          blockType: Scratch.BlockType.LABEL,
+          text: 'WebAssembly Modules'
+        },
+        {
           opcode: 'instantiateWasm',
           blockType: Scratch.BlockType.COMMAND,
           text: 'instantiate .wasm URL [url] as [name]',
@@ -27,6 +31,37 @@ class TurboWasm {
             },
             name: {
               type: Scratch.ArgumentType.STRING
+            }
+          }
+        },
+        {
+          opcode: 'unloadWasm',
+          blockType: Scratch.BlockType.COMMAND,
+          text: 'unload .wasm [name]',
+          arguments: {
+            name: {
+              type: Scratch.ArgumentType.STRING
+            }
+          }
+        },
+        {
+          opcode: 'allWasms',
+          blockType: Scratch.BlockType.REPORTER,
+          text: 'all .wasm instances'
+        },
+
+        {
+          blockType: Scratch.BlockType.LABEL,
+          text: 'Calling Functions'
+        },
+        {
+          opcode: 'allFunctions',
+          blockType: Scratch.BlockType.REPORTER,
+          text: 'all functions in [name]',
+          arguments: {
+            name: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: ""
             }
           }
         },
@@ -236,7 +271,11 @@ class TurboWasm {
             }
           }
         },
-        "---",
+
+        {
+          blockType: Scratch.BlockType.LABEL,
+          text: 'Array Loading'
+        },
         {
           opcode: 'malloc',
           blockType: Scratch.BlockType.REPORTER,
@@ -332,6 +371,26 @@ class TurboWasm {
     ).then(results => {
       this.modules[name] = results.instance.exports
     });
+  }
+  unloadWasm({ name }) {
+    if (name in this.modules) {
+      delete this.modules[name]
+    }
+  }
+  allWasms({}) {
+    return JSON.stringify(Object.keys(this.modules))
+  }
+  allFunctions({ name }) {
+    if (name in this.modules) {
+      var funcs = [];
+      for (const [k, v] of Object.entries(this.modules[name])) {
+        if (v instanceof Function) {
+          funcs.push(k);
+        }
+      }
+      return JSON.stringify(funcs);
+    }
+    return;
   }
   procedure({ func }) {}
   moduleCall0({ func, name}) {
