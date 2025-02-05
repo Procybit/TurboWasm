@@ -1,4 +1,3 @@
 - Exceptions
 - Import binding
 - Better call blocks
-- Allow memory growth

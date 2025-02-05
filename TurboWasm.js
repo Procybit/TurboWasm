@@ -335,36 +335,78 @@ class TurboWasm {
   }
   procedure({ func }) {}
   moduleCall0({ func, name}) {
-    return this.modules[name][func]();
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func]();
+      }
+    }
+    return;
   }
   moduleCall1({ func, name, a1 }) {
-    return this.modules[name][func](a1);
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func](a1);
+      }
+    }
+    return;
   }
   moduleCall2({ func, name, a1, a2 }) {
-    return this.modules[name][func](a1, a2);
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func](a1, a2);
+      }
+    }
+    return;
   }
   moduleCall3({ func, name, a1, a2, a3 }) {
-    return this.modules[name][func](a1, a2, a3);
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func](a1, a2, a3);
+      }
+    }
+    return;
   }
   moduleCall4({ func, name, a1, a2, a3, a4 }) {
-    return this.modules[name][func](a1, a2, a3, a4);
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func](a1, a2, a3, a4);
+      }
+    }
+    return;
   }
   moduleCall16({ func, name, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 }) {
-    return this.modules[name][func](a1, a2, a3, a4, a5, a6, a7 , a8 , a9 , a10, a11, a12, a13, a14, a15, a16);
+    if (name in this.modules) {
+      if (func in this.modules[name]) {
+        return this.modules[name][func](a1, a2, a3, a4, a5, a6, a7 , a8 , a9 , a10, a11, a12, a13, a14, a15, a16);
+      }
+    }
+    return;
   }
   malloc({ size, name }) {
-    return this.modules[name]._malloc(size);
+    if (name in this.modules) {
+      if ('_malloc' in this.modules[name]) {
+        return this.modules[name]._malloc(size);
+      }
+    }
+    return;
   }
   free({ name, ptr }) {
-    this.modules[name]._free(ptr);
+    if (name in this.modules) {
+      if ('_free' in this.modules[name]) {
+        return this.modules[name]._free(ptr);
+      }
+    }
+    return;
   }
   place({ list, ptr, name, size }, util) {
-    const array = this.getVarObjectFromName(list, util, "list").value
+    const v = this.getVarObjectFromName(list, util, "list");
+    if (!v) {return;};
+    const array = this.getVarObjectFromName(list, util, "list").value;
+    if (!array) {return;};
+    if (!(name in this.modules)) {return;};
+    if (!('memory' in this.modules[name]));
     const memory = this.modules[name].memory;
     const buffer = memory.buffer;
-
-    var set;
-    var s;
 
     switch (size) {
       case "i8":
@@ -408,7 +450,12 @@ class TurboWasm {
     }
   }
   take({ ptr, name, size, list, length }, util) {
-    const array = this.getVarObjectFromName(list, util, "list").value
+    const v = this.getVarObjectFromName(list, util, "list");
+    if (!v) {return;};
+    const array = this.getVarObjectFromName(list, util, "list").value;
+    if (!array) {return;};
+    if (!(name in this.modules)) {return;};
+    if (!('memory' in this.modules[name]));
     const memory = this.modules[name].memory;
     const buffer = memory.buffer;
 
