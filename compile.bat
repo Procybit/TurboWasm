@@ -23,6 +23,18 @@ for %%f in (cpp\*.cpp) do (
     )
 )
 
+
+for %%f in (cpp\*.c) do (
+    set "NAME=%%~nf"
+    call emcc "%%f" -o "wasm\!NAME!.wasm" -sSTANDALONE_WASM=1 -sINITIAL_HEAP=128mb -sABORTING_MALLOC=0 --no-entry -O3
+
+    if errorlevel 1 (
+        echo Failed to compile %%f
+    ) else (
+        echo Successfully compiled !NAME!.c to !NAME!.wasm
+    )
+)
+
 echo.
 echo All files have been processed.
 pause
