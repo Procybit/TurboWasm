@@ -1,3 +1,4 @@
 - Exceptions
 - Import binding
 - Better call blocks
+- Check array resizing in `take` block
