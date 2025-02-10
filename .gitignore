@@ -1,9 +1,4 @@
 wasm/*.wasm
-
-cpp/*.c
-cpp/*.cpp
-cpp/*.h
-cpp/*.hpp
-!cpp/example.cpp
+wasm/*.map
 
 .vscode
